@@ -31,7 +31,7 @@ public class FeedbackAppApplication implements CommandLineRunner {
 
 	private Product getProduct(){
 		Product p = new Product();
-		p.setImage("IMAGE_1");
+		p.setImage("https://fastly.picsum.photos/id/111/536/354.jpg?hmac=fHcbrbPdjjAKJDWHzXpGbfQ9Jbxs3x-FEQNm_rQrmzQ");
 		p.setName("NAME1");
 		p.setPrice(23.4f);
 		p.setQuantity(2);

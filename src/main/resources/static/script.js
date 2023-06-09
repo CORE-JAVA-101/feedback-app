@@ -24,13 +24,36 @@ function loadData() {
     });
 }
 
+
+function getProduct(id) {
+  fetch(baseUrl + "/products/"+id)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      // Process the response data
+      console.log(data);
+      bindProduct(data);
+    })
+    .catch((error) => {
+      // Handle any errors
+      console.error("Error:", error);
+    });
+}
+
 function bindProducts(products) {
   let rowList = document.getElementById("product-list");
   rowList.innerText = "";
+  let productElement = document.getElementById("product");
+  productElement.innerText = "";
   for (let key in products) {
     let product = products[key];
     let productElement = productAsList(product);
-    let feedbackElement = getFeedbackElement(product);
+    let feedbackElement = document.createElement('div');
+    feedbackElement.innerHTML=`<button class='btn btn-primary' onclick='getProduct(${product.id})'>Feedback</button>`
     let recordElement = document.createElement("div");
     recordElement.className = "row mb-4";
     recordElement.appendChild(productElement);
@@ -43,6 +66,30 @@ function bindProducts(products) {
     recordElement.appendChild(feedbackTextElement);
     rowList.appendChild(recordElement);
   }
+}
+
+
+
+function bindProduct(product) {
+  let rowList = document.getElementById("product-list");
+  rowList.innerText = "";
+  let productItemElement = document.getElementById("product");
+  productItemElement.innerText = "";
+
+    let productElement = productAsList(product);
+    let feedbackElement = getFeedbackElement(product);
+    let recordElement = document.createElement("div");
+    recordElement.className = "row mb-4";
+    recordElement.appendChild(productElement);
+    recordElement.appendChild(feedbackElement);
+
+    let feedbackTextElement = document.createElement("div");
+    feedbackTextElement.className = "col-sm-12";
+    feedbackTextElement.innerText = "";
+    feedbackTextElement.id = "feedback-text-" + product.id;
+    feedbackElement.appendChild(feedbackTextElement);
+    productItemElement.appendChild(recordElement);
+  
 }
 
 function getFeedbackElement(product) {
@@ -92,13 +139,17 @@ function attachFeedbackList(event) {
 
 function setFeedbackElements(id, feedbacks) {
   let feedbackTextElement = document.getElementById("feedback-text-" + id);
-  feedbackTextElement.innerText = "";
+  feedbackTextElement.innerHTML = "<br/>";
   for (let key in feedbacks) {
+   
     let spanElement = document.createElement("div");
     console.log(feedbacks[key].content);
     spanElement.innerHTML = feedbacks[key].content;
     spanElement.className = "alert alert-warning";
     spanElement.role = "alert";
+    spanElement.style=`overflow: auto;
+    word-wrap: break-word;
+    white-space: pre-wrap;`
     feedbackTextElement.appendChild(spanElement);
     // feedbackTextElement.appendChild(document.createElement("br"));
   }
@@ -111,7 +162,13 @@ function productAsList(product) {
     let value = product[key];
     let liElement = document.createElement("li");
     liElement.className = "list-group-item";
+    if(key==='image')
+    {
+        liElement.innerHTML=`<img width='60%' src=${value}></img>`
+    }
+    else{
     liElement.innerHTML = `<strong>${toSentenceCase(key)}: </strong> ${value}`;
+    }
     ulElement.appendChild(liElement);
   }
 
@@ -134,6 +191,7 @@ function saveFeedback(event) {
     productId: productId,
   };
   sendFeedbackRequest(feedback);
+ 
 }
 
 function findFeedback(id) {
@@ -171,7 +229,11 @@ function sendFeedbackRequest(feedback) {
   };
 
   fetch(url, options)
-    .then((response) => console.log(response))
+    .then((response) => {console.log(response); return response.json();})
+    .then((data)=>{
+      console.log(data);
+      findFeedback(data.productId);
+    })
     .catch((error) => {
       console.error("Error:", error);
       // Handle any errors

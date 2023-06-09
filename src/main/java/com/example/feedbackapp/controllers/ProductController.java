@@ -40,13 +40,20 @@ public class ProductController {
     return new ResponseEntity<>(productList, HttpStatus.OK);
   }
 
+
+  @GetMapping("/{id}")
+  public ResponseEntity<Product> findProduct(@PathVariable long id) {
+    Product product = productRepository.findById(id).get();
+    return new ResponseEntity<>(product, HttpStatus.OK);
+  }
+
   @PostMapping("/feedback")
-  public ResponseEntity<Void> save(@RequestBody Feedback feedback) {
+  public ResponseEntity<Feedback> save(@RequestBody Feedback feedback) {
       if(!StringUtils.hasText(feedback.getContent())){
           return ResponseEntity.ok().build();
       }
     feedbackRepository.save(feedback);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(feedback);
   }
 
   @GetMapping("/feedback/{id}")
